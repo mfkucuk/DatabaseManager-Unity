@@ -5,12 +5,21 @@ using System.Linq;
 
 public class DatabaseManager : SingletonnPersistent<DatabaseManager>
 {
+    [SerializeField]
+    private string _fileName;
+
+    [SerializeField]
+    private bool _useEncryption;
+
     private GameData _gameData;
     private List<IDataPersistence> _dataPersistenceObjects;
+
+    private JsonFileHandler _jsonFileHandler;
 
     private void Start()
     {
         _dataPersistenceObjects = FindAllDataPersistenceObjects();
+        _jsonFileHandler = new JsonFileHandler(Application.persistentDataPath, _fileName, _useEncryption);
     }
 
     /**
@@ -32,6 +41,7 @@ public class DatabaseManager : SingletonnPersistent<DatabaseManager>
         }
 
         // Convert game data into JSON and save it in a file.
+        _jsonFileHandler.SaveData(_gameData);
     }
 
     /**
@@ -42,6 +52,9 @@ public class DatabaseManager : SingletonnPersistent<DatabaseManager>
      */
     public void LoadGame()
     {
+        // Load the JSON and create a GameData object from it.
+        _gameData = _jsonFileHandler.LoadData();
+
         // Check if the game is initialized.
         if (_gameData == null)
         {
